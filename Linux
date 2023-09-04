@@ -1,3 +1,21 @@
+Linux Shell and Shell Scripting
+If we are using any major operating system, we are indirectly interacting with the shell. While running Ubuntu, Linux Mint, or any other Linux distribution, we are interacting with the shell by using the terminal.
+
+A shell is a special user program that provides an interface for the user to use operating system services. Shell accepts human-readable commands from users and converts them into something which the kernel can understand. It is a command language interpreter that executes commands read from input devices such as keyboards or from files. The shell gets started when the user logs in or starts the terminal.
+
+Shell is broadly classified into two categories –
+Command Line Shell
+Graphical shell
+
+There are several command line shells available for Linux systems like –
+BASH (Bourne Again SHell) – It is the most widely used shell in Linux systems. It is used as default login shell in Linux systems and in macOS. It can also be installed on Windows OS.
+CSH (C SHell) – The C shell’s syntax and its usage are very similar to the C programming language.
+KSH (Korn SHell) – The Korn Shell was also the base for the POSIX Shell standard specifications etc.
+
+What is a terminal?
+A program which is responsible for providing an interface to a user so that he/she can access the shell. It basically allows users to enter commands and see the output of those commands in a text-based interface.
+
+
 Ubuntu is derived from Debian Linux. Debian uses dpkg packaging system.
 
 What is a package? - A Package in linux is a compressed archived file containing all the files included with a software application.
