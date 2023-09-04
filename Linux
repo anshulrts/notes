@@ -1,0 +1,62 @@
+Ubuntu is derived from Debian Linux. Debian uses dpkg packaging system.
+
+What is a package? - A Package in linux is a compressed archived file containing all the files included with a software application.
+
+There are several ways to install software/package on linux/ubuntu:
+1. Ubuntu Software Center (GUI)
+2. Synaptic Package Manager (GUI) - Introduced in Linux 16 - Claims to be more stable and secure
+3. Terminal (apt or snap)
+4. Manual download of deb package and then using dpkg command.
+
+
+Best way - apt (Previously apt-get)
+
+But first, let's learn the historical way of doing this i.e apt-get
+
+apt-get (APT - Advanced Package Tool)
+It is a set of command line tools that allow you to install, remove and update deb packages installed via APT in debian based linux.
+It makes it easier compared to using dpkg command directly.
+
+There are 2 main tools around APT: apt-get(install, upgrade and remove) and apt-cache (finding new packages)
+
+apt-get basically works on the database of available packages. We need to update this database so that our system knows about any new
+version of packages. For this, we do - sudo apt-get update
+Once you have this database updated, you need to apply those upgrades on the packages installed on your system. To upgrade all, run -
+sudo apt-get upgrade
+
+We can combine these 2 commands like this - sudo apt-get update && sudo apt-get upgrade -y
+
+Installing a package
+sudo apt-get install <package-name>
+auto-completion is supported while searching for package name
+If you run install on already existing package, it'll just upgrade if newer version is available in the database.
+
+Removing a package
+sudo apt-get remove <package-name>
+sudo apt-get purge <package-name>
+
+Difference - remove just removes the binaries of the package. purge removes everything related to package, including config files.
+So if you re-install a package which you "remove" earlier, it'll use same config files. (You'll have option to override though)
+
+
+apt command (Introduced in Ubuntu 14, but widely used from 16)
+Why was apt introduced?
+Previouly, in order to interact with APT, we had to switch between apt-get and apt-cache and others. Also, a lot of functionalities
+of these 2 commands were not being used. apt was introduced as a single command to have commanly used options of both.
+
+
+
+free -t -m
+command to list RAM status
+
+
+Command to list all packages installed using apt
+comm -23 <(apt-mark showmanual | sort -u) <(gzip -dc /var/log/installer/initial-status.gz | sed -n 's/^Package: //p' | sort -u)
+
+
+Default File system in most linux distro - ext4 (Released in 2006)
+Red Hat Enterprise 7 has XFS as default
+Other file system - btrfs
+These 3 are best File Systems
+
+
