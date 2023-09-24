@@ -18,7 +18,7 @@ A program which is responsible for providing an interface to a user so that he/s
 
 Ubuntu is derived from Debian Linux. Debian uses dpkg packaging system.
 
-What is a package? - A Package in linux is a compressed archived file containing all the files included with a software application.
+A Package in linux is a compressed archived file containing all the files included with a software application.
 
 There are several ways to install software/package on linux/ubuntu:
 1. Ubuntu Software Center (GUI)
