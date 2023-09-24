@@ -1,0 +1,66 @@
+Azure Pipelines
+
+Stages
+- Jobs
+  - Steps
+
+Jobs
+A job is the smallest unit that can be scheduled to run.
+Every pipeline has atleast 1 job.
+Depending on your agent capabilities and pipeline demands,
+each job may be routed to a different agent in your self-hosted pool.
+As a result, you may get a new agent for subsequent pipeline runs (or stages or jobs in the same pipeline)
+
+Based on behavior, Categorized as - 1) Normal (for build, test or any other stuff) 2) Deployment Job
+
+Deployment Job
+If the primary intent of your job is to deploy your app (as opposed to build or test your app),
+then you can use a special type of job called deployment job.
+            - deployment: string        # instead of job keyword, use deployment keyword
+              pool:
+                name: string
+                demands: string | [ string ]
+              environment: string
+              strategy:
+                runOnce:
+                  deploy:
+                    steps:
+                    - script: echo Hi!
+
+Although you can add steps for deployment tasks in a job, we recommend that you instead use a
+deployment job. A deployment job has a few benefits. For example, you can deploy to an environment,
+which includes benefits such as being able to see the history of what you've deployed.
+
+Types of Jobs
+Agent pool jobs run on an agent in an agent pool.
+Server jobs run on the Azure DevOps Server.
+Container jobs run in a container on an agent in an agent pool.
+
+Dependencies
+When you define multiple jobs in a single stage, you can specify dependencies between them.
+Pipelines must contain at least one job with no dependencies. By default Azure DevOps YAML
+pipeline jobs will run in parallel unless the dependsOn value is set.
+
+Note - Each agent can run only one job at a time. To run multiple jobs in parallel you must
+configure multiple agents. You also need sufficient parallel jobs.
+
+Workspace
+When you run an agent pool job, it creates a workspace on the agent.
+The workspace is a directory in which it downloads the source, runs steps, and produces outputs.
+The workspace directory can be referenced in your job using Pipeline.Workspace variable.
+Under this, various subdirectories are created
+- Build.SourcesDirectory is where tasks download the application's source code.
+- Build.ArtifactStagingDirectory is where tasks download artifacts needed for the pipeline or upload artifacts before they are published.
+- Build.BinariesDirectory is where tasks write their outputs.
+- Common.TestResultsDirectory is where tasks upload their test results.
+
+The $(Build.ArtifactStagingDirectory) and $(Common.TestResultsDirectory) are always deleted and recreated prior to every build.
+
+When you run a pipeline on a self-hosted agent, by default, none of the subdirectories other than
+$(Build.ArtifactStagingDirectory) and $(Common.TestResultsDirectory) are cleaned in between
+two consecutive runs. As a result, you can do incremental builds and deployments, provided that
+tasks are implemented to make use of that. You can override this behavior using the workspace
+setting on the job.
+
+The workspace clean options are applicable only for self-hosted agents. Jobs are always run on a
+new agent with Microsoft-hosted agents.
