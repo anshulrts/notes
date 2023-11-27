@@ -1,0 +1,142 @@
+*Docker*
+
+Quick Commands
+Container
+List all containers and their status: docker ps -a (To find all running processes, remove flag -a)
+Run Container: docker run <image_id/name>
+Give name while running container: docker run --name <container name> <image id/name>
+Run container in interactive mode: docker run -it <imageid/name>
+Restart existing container: docker start <container_name/id>
+Restart in attached Mode: docker start -a <container_name/id>
+Run & Expose port: docker run -p 5888:3000 <image_id> (5888 is local port, 3000 is what image has exposed)
+Stop Container: docker stop <container_id or name>
+Remove/clean containers: docker rm <container_name/id> 
+remove container automatically after stop: docker run --rm <image_id>
+view logs from a container: docker log <containerid/name>
+
+docker run --rm --name myapp -it -p 5888:3000 myimage
+The above command will remove a container when it stops, has name myapp, is running in interactive mode,
+has a port open on docker host at 5888 and exposes port 3000 from container and is based on image myimage
+
+Image
+List all images: docker images
+Build Image: docker build <path to dockerfile or . in case of current folder>
+Name an image while building: docker build -t name:tag (eg node:latest)
+Remove/clean images: docker rmi <image name/id> (Note - You cannot remove an image for which there's a referencing container)
+
+Docker has 2 core concepts
+- Images
+- Containers
+
+Images could be either custom images or pre built.
+Containers run from Images i.e image is just a blueprint/template using which containers run.
+Images are search for either on your local, but if they are not available, on docker hub(by default)/any other repo you specify.
+
+
+*Using Pre-Build Images*
+For eg, "node" is an image publically available on docker hub published by official Node team. 
+In order to access it, you have to run this:
+	docker run -it node
+(The reason we need to have interactive flag here is because we want to run our commands on the shell)
+
+*Custom Images*
+To create custom images, in the root(not necessary) of your repo create a dockerfile and call it "Dockerfile"
+This is a sample of how it looks like:
+FROM node
+
+WORKDIR /app
+
+COPY . /app
+
+RUN npm install
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
+
+*Images are Read Only*
+Let's say you build an image. After that you change your code, you'll have to re-build the image.
+
+Also note that Docker is smart enough to understand whether there's any change to any of the instruction.
+Docker use the cache for the steps in dockerfile which are not changed. But all the steps after the first changed step will be executed fresh.
+Therefore, in the above dockerfile, it makes sense to first copy packages.json to /app, run npm install step and then copy other code.
+This is because code change is going to happen frequently compared to adding new packges - you'll be running npm install everytime unnecessarily
+Here's the updated dockerfile
+
+FROM node
+
+WORKDIR /app
+
+COPY package.json /app
+
+RUN npm install
+
+COPY . /app
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
+
+*Layer Based Architecture*
+Every instruction in dockerfile is layer in the image. So, when we run a container over an image, it's basically just asking for another layer (which it gets by execuing the last CMD command)
+
+By default, docker run command runs in attached mode, but docker start command is in detached mode.
+
+
+*Storage in Docker*
+Broadly divided into 2 types
+- Volumes (named and unnamed) (Managed by docker)
+- Bind Mounts (Managed by us)
+
+*Volumes*
+These are types of mounts which cannot be seen on a host directly, but are managed by docker.
+
+Unnamed volume
+As the name suggests, there are types of volumes which are not named. They are available only till the time container is active,
+or when the same container is restarted. They are removed when a container is removed.
+There are 2 ways we can create these, we usually prefer 2nd:
+1) In dockerfile
+in docker file, add this statement:
+VOLUME [ "/app/feedback" ]
+what this basically says is that whatever file is present inside of the container at /app/feedback/, save it in docker volume
+2) through docker command
+docker run --rm -v /app/feedback myimage
+
+named volumes
+They are given names and they survive container stops.
+This is how we define named values
+docker run --rm -v feedback:/app/feedback myimage
+Now if you want to use the files in this, use the same -v option
+
+Bind Mounts
+In these, we set paths on docker host (host machine) which running the container.
+
+docker run --rm -v "Users/temp/feedback":/app/feedback myimage
+
+But remember nodu_modules was lost, because bind mount replace the files present in container.
+You can use unnamed volumes in this case.
+
+Usually we use Named volumes the most
+
+.Net Apps
+Till 2019, microsoft used to host dotnet images in docker hub, but now it does it on their own website (mcr.microsoft.com)
+With .Net apps, we use stages in docker. This is because we need different images of dotnet to build vs run the apps.
+Above example was for node, which is a scripting language and running the file directly works, but C# is compiled language, we need to run the compiled file.
+Each FROM statement introduce a new stage in docker.
+For .net6.0, this is how a usual docker file looks like:
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 as build-env
+WORKDIR /App
+COPY . ./
+RUN dotnet restore
+RUN dotnet publish -c Release -o out
+
+FROM mcr.microsoft.com/dotnet/runtime:6.0
+WORKDIR /App
+COPY --from=build-env /App/out .
+CMD ["dotnet", "CSharpConcepts.dll"]
+
+Each FROM line indicates a new stage. The only thing that survives is the final stage, where all that's being done is the published files are copied in and
+the app is run, giving you an optimally sized image.
+In this case, if you used a single staged build and built this image based on sdk, image size came out to be 800+MB.
+But with multi-stage, and building the image on top of dotnet/runtime, we got only 208MB image.
