@@ -4,6 +4,7 @@ Quick Commands
 Container
 List all containers and their status: docker ps -a (To find all running processes, remove flag -a)
 Run Container: docker run <image_id/name>
+Remove after stop: docker run --rm <imageid/name>
 Give name while running container: docker run --name <container name> <image id/name>
 Run container in interactive mode: docker run -it <imageid/name>
 Restart existing container: docker start <container_name/id>
@@ -11,8 +12,11 @@ Restart in attached Mode: docker start -a <container_name/id>
 Run & Expose port: docker run -p 5888:3000 <image_id> (5888 is local port, 3000 is what image has exposed)
 Stop Container: docker stop <container_id or name>
 Remove/clean containers: docker rm <container_name/id> 
-remove container automatically after stop: docker run --rm <image_id>
 view logs from a container: docker log <containerid/name>
+Copy files from host to a container: docker cp temp/test.txt <container_name>:path (e.g mynode-container/)
+- If the folder doesn't exist, it'll create one automatically
+Copy files from container to host: docker cp <containerid/name>:/temp/test.txt temp
+Get details of container: docker container inspect <containerid/name>
 
 docker run --rm --name myapp -it -p 5888:3000 myimage
 The above command will remove a container when it stops, has name myapp, is running in interactive mode,
@@ -108,7 +112,7 @@ This is how we define named values
 docker run --rm -v feedback:/app/feedback myimage
 Now if you want to use the files in this, use the same -v option
 
-Bind Mounts
+*Bind Mounts*
 In these, we set paths on docker host (host machine) which running the container.
 
 docker run --rm -v "Users/temp/feedback":/app/feedback myimage
@@ -116,7 +120,26 @@ docker run --rm -v "Users/temp/feedback":/app/feedback myimage
 But remember nodu_modules was lost, because bind mount replace the files present in container.
 You can use unnamed volumes in this case.
 
-Usually we use Named volumes the most
+Usually we use Named volumes the most.
+
+*Networks*
+There are 3 types of communication that can happen with docker containers
+1) Container to www (whole internet) - This is allowed by default
+Eg you have a node app, which is calling API's hosted on https://swapi.dev/api/films
+This communication is allowed by default.
+2) Container to Local Host Machine Communication
+Eg you have a node application and want it to connect to mongodb installed on your machine
+To make this communication happen, set the url's domain to host.docker.internal
+Eg to connect to mongodb, use this url - mongodb://host.docker.internal:27017/dbname
+3) Container to Container Communication
+Eg your node application container connects to mongodb container
+For this, you need to create a network, using this command:
+docker network create my-net
+The run container with --network option like this-
+docker run -d --name my-container-name --network my-net <imageid/name>
+When you run 2 containers in same network, you can refer them using container name in the code.
+Put container name in the domain of URL
+When you create networks, you don't need to expose the port using -p flag.
 
 .Net Apps
 Till 2019, microsoft used to host dotnet images in docker hub, but now it does it on their own website (mcr.microsoft.com)
@@ -140,3 +163,4 @@ Each FROM line indicates a new stage. The only thing that survives is the final 
 the app is run, giving you an optimally sized image.
 In this case, if you used a single staged build and built this image based on sdk, image size came out to be 800+MB.
 But with multi-stage, and building the image on top of dotnet/runtime, we got only 208MB image.
+

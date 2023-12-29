@@ -1,0 +1,26 @@
+ECR
+
+
+Create Repository
+aws ecr create-repository --repository-name <repo_name> --region <region_name>
+
+This will return the success response and in that it'll contain "repositoryUri"
+After this, you should see an ecr in console.
+
+How to Push a Docker Image to ECR
+1) Get Credentials
+For Docker to push the image to ECR, first we have to authenticate our Docker credentials with AWS.
+We use the get-login-password command that retrieves and displays an authentication token using the
+GetAuthorizationToken API that we can use to authenticate to an Amazon ECR registry.
+
+aws ecr get-login-password --region <region_name>
+You need to save this token somewhere...
+
+2) Authenticate
+aws ecr --region <region> | docker login -u AWS -p <encrypted_token> <repo_uri>
+
+3) Tag your Image properly
+docker tag <source_image_tag> <target_ecr_repo_uri>
+
+4) Push image to ecr
+docker push <ecr-repo-uri>

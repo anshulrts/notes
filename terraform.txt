@@ -1,0 +1,47 @@
+Terraform
+
+Write
+terraform init (one time)
+terraform plan
+terraform apply (-auto-approve)
+
+In tf, there's a concept of current state and desired state.
+Current state is what actually exist on cloud, while desired state is what we specify in our config files.
+And TF will always make changes to the resources such that they are brought to desired state.
+Hence, any manual changes done on the cloud will get reverted after doing terraform apply if they are not specified in the config files.
+BUT, this will only happen if that particular config is being set in our config files.
+For e.g, Let's say you generate an ec2 instance using tf, don't specify any security_groups in config file.
+(In this case, a "default" security group will get attached to the ec2 automatically)
+Then you manually added a security group(sg-1) on AWS.
+Next time you do a terraform plan, it'll detect that sg-1 was added to the ec2(because tf checks current state using refresh command), but after doing apply, it won't remove it.
+But, if you had created the ec2 and specified a security group(sg-2), tf would have deleted sg-1 on apply.
+
+How to change this default behavior such that terraform ignores manually added changes?
+Ans - Lifecycle Meta Agrument
+This is how declare them-
+
+lifecycle {
+	ignore_changes = [tags]
+}
+
+Other Imp Lifecycle arguments:
+create_before_destroy
+
+tfvar file
+terraform will pick tfvar file automatically from the directory only if it is named terraform.tfvars. If it's named any differently, then it won't pick.
+
+The Order of Precedence
+The order of precedence for variable sources is as follows with later sources taking precedence over earlier ones:
+1. Environment variables
+2. The terraform.tfvars file, if present.
+3. The terraform.tfvars.json file, if present.
+4. Any *.auto.tfvars or *.auto.tfvars.json files, processed in lexical order of their filenames.
+5. Any -var and -var-file options on the command line, in the order they are provided.
+
+Also note, the variable you provided during "terraform plan -var="my_bucket_name=my-name" will get lost during terraform apply, unless you save it to output file.
+Or you need to provide the var parameters during apply
+
+Terraform Refresh command
+When we do terraform plan, we basically first do a terraform refresh (and get current state from cloud provider) and then generate a plan after taking in changes from current state.
+However, you can set -refresh=false flag while generating a plan. This will not get the current state (and hence any manually added changes will not show up)
+But terraform apply will work normally, i.e it'll remove any manually done change.
