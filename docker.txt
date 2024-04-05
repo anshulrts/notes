@@ -4,13 +4,13 @@ Quick Commands
 Container
 List all containers and their status: docker ps -a (To find all running processes, remove flag -a)
 Run Container: docker run <image_id/name>
+Stop Container: docker stop <container_id or name>
 Remove after stop: docker run --rm <imageid/name>
 Give name while running container: docker run --name <container name> <image id/name>
 Run container in interactive mode: docker run -it <imageid/name>
 Restart existing container: docker start <container_name/id>
 Restart in attached Mode: docker start -a <container_name/id>
 Run & Expose port: docker run -p 5888:3000 <image_id> (5888 is local port, 3000 is what image has exposed)
-Stop Container: docker stop <container_id or name>
 Remove/clean containers: docker rm <container_name/id> 
 view logs from a container: docker log <containerid/name>
 Copy files from host to a container: docker cp temp/test.txt <container_name>:path (e.g mynode-container/)
