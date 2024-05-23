@@ -164,3 +164,81 @@ the app is run, giving you an optimally sized image.
 In this case, if you used a single staged build and built this image based on sdk, image size came out to be 800+MB.
 But with multi-stage, and building the image on top of dotnet/runtime, we got only 208MB image.
 
+
+
+DOCKER COMPOSE
+It is used to spin up multiple containers.
+This is a typical compose file:
+
+    version: "3.8"
+
+    services:
+    authorization:
+        image: abc.authorization
+        container_name: abc.authorization
+        build:
+        context: .
+        dockerfile: authorization.dockerfile
+        ports: 
+        - "9002:8080"
+        - "9001:8081"
+        environment:
+        - ConnectionStrings__Database=server=host.docker.internal,1433;database=db_name;user id=sa;password=P@ssw0rd;MultipleActiveResultSets=true;trustservercertificate=true
+        - ConnectionStrings__Database1=server=host.docker.internal,1433;database=db_name;user id=sa;password=P@ssw0rd;MultipleActiveResultSets=true;trustservercertificate=true
+        networks:
+        - token-exchange-poc
+
+    destination:
+        image: wso.destination
+        container_name: wso.destination
+        build:
+        context: .
+        dockerfile: destination.dockerfile
+        ports: 
+        - "9004:8080"
+        - "9003:8081"
+        networks:
+        - token-exchange-poc
+
+    gateway:
+        image: wso.gateway
+        container_name: wso.gateway
+        build:
+        context: .
+        dockerfile: gateway.dockerfile
+        ports:
+        - "9006:8080"
+        - "9005:8081"
+        environment:
+        - AuthorizationService=authorization:8080
+        - RedisPath=redis:6379
+        - GlobalConfiguration__BaseUrl=http://destination:8080
+        networks:
+        - token-exchange-poc
+        depends_on:
+        - redis
+
+    identity-provider:
+        image: wso.identity-provider
+        container_name: wso.identity-provider
+        build:
+        context: .
+        dockerfile: identityprovider.dockerfile
+        ports:
+        - "9008:8080"
+        - "9007:8081"
+        networks:
+        - token-exchange-poc
+
+    redis:
+        image: redis
+        ports:
+        - 6379:6379
+        networks:
+        - token-exchange-poc
+
+    networks:
+    token-exchange-poc:
+        external: true
+
+Whatever environment variable you provide in -environment, it will override whatever is defined inside
