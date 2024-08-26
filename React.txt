@@ -107,15 +107,13 @@ function App() {
 
 
 - In normal JS function, we define same number of arguments in a method which are passed.
-But in JSX, all the parameters are received in one parameter only, which we typically as props. But we can give it a custom name.
-props parameter will be set by React as it will execuet the function.
+But in JSX, all the parameters are received in one parameter only, which we typically call as props. But we can give it a custom name.
+props parameter will be set by React as it will execute the function.
 Remember, we are not calling these component function ourselves, instead we are using them as HTML elements and React is calling them.
 So, React converts all the values we pass to an object, which will be received by the child component. 
-It's not a problem, because we are just usign the 
-What we're going to do is that we'll pass Title & description data from App component.
 
 Get Rid of props
-- You can destructure the props parameter received in CoreConcept component, as long as you use the same names.
+You can destructure the props parameter received in CoreConcept component, as long as you use the same names.
 You then don't need to use props keyword everytime.
 This is how the CoreConcept would look like:
 function CoreConcept({image, description, title}) {
@@ -131,7 +129,7 @@ You can also provide default values to your props like this:
 function CoreConcept({image, description, title = "Test"})
 
 Children Props
-You have a choice whether to send props as attributed or children. Children props are what is set automatically by React.
+You have a choice whether to send props as attributes or children. Children props are what is set automatically by React.
 The children prop is a special prop that's automatically provided to every component function. It contains the wrapped content as a value.
 export default function App() {
 	return (
